@@ -68,7 +68,7 @@ work out-of-the-box. Please feel free to refer to related documentations for det
 1. Install volttron and start the platform.
 
    > **Note**:
-   > According to [volttron-core#readme](https://github.com/eclipse-volttron/volttron-core#readme), setup VOLTTRON_HOME
+   > According to the [volttron-core#README](https://github.com/eclipse-volttron/volttron-core#readme), setup VOLTTRON_HOME
    > environment variable is mandatory:
 
    > ... if you have/had in the past, a monolithic VOLTTRON version that used the default VOLTTRON_HOME
