@@ -1,58 +1,124 @@
-# Configuration file for the Sphinx documentation builder.
+# -*- coding: utf-8 -*- {{{
+# ===----------------------------------------------------------------------===
 #
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
-# -- Path setup --------------------------------------------------------------
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
+#                 Installable Component of Eclipse VOLTTRON
 #
+# ===----------------------------------------------------------------------===
+#
+# Copyright 2022 Battelle Memorial Institute
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy
+# of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+# ===----------------------------------------------------------------------===
+# }}}
+
 import os
-import sys
+import subprocess
+import yaml
 
-sys.path.insert(0, os.path.abspath(".."))
+# Configuration file for the Sphinx documentation builder.
 
-# -- Project information -----------------------------------------------------
+# -- Project information
 
-project = "Volttron DNP3 Outstation"
-copyright = "2022, Volttron Team"
-author = "Volttron Team"
+project = 'VOLTTRON DNP3 Outstation Agent'
+copyright = '2022, Pacific Northwest National Lab'
+author = 'Pacific Northwest National Lab'
 
-# The full version, including alpha/beta/rc tags
-release = "0.1.0"
+release = '0.1'
+version = '0.1.0'
 
-# -- General configuration ---------------------------------------------------
+# -- General configuration
 
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.viewcode"]
+extensions = [
+    'sphinx.ext.duration',
+    'sphinx.ext.doctest',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.intersphinx',
+]
 
-# prefix sections with the document so that we can cross link
-# sections from different pages.
-todo_include_todos = True
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None),
+    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+}
+intersphinx_disabled_domains = ['std']
 
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
+templates_path = ['_templates']
 
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
-# This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+# -- Options for HTML output
 
-# -- Options for HTML output -------------------------------------------------
+html_theme = 'sphinx_rtd_theme'
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-html_theme = "alabaster"
+# -- Options for EPUB output
+# epub_show_urls = 'footnote'
 
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+# Custom event handlers for Volttron #
+def setup(app):
+    """
+    Registers callback method on sphinx events. callback method used to
+    dynamically generate api-docs rst files which are then converted to html
+    by readthedocs
+    :param app:
+    """
+    # app.connect('builder-inited', generate_apidoc)
+    app.connect('builder-inited', generate_agent_docs)
 
-autodoc_typehints = "both"
+    # app.connect('build-finished', clean_api_rst)
+    app.connect('build-finished', clean_agent_docs_rst)
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
+agent_docs_root = os.path.join(script_dir, "agent-docs")
+
+def _read_config(filename):
+    data = {}
+    try:
+        with open(filename, 'r') as yaml_file:
+            data = yaml.safe_load(yaml_file)
+    except IOError as exc:
+        print("Error reading from file: {}".format(filename))
+        raise exc
+    except yaml.YAMLError as exc:
+        print("Yaml Error: {}".format(filename))
+        raise exc
+    return data
+
+
+def generate_agent_docs(app):
+    os.makedirs(agent_docs_root)
+    agents_data = _read_config(filename=os.path.join(script_dir, "agent_versions.yml"))
+    repo_prefix = "https://github.com/eclipse-volttron/"
+    for agent_name in agents_data:
+        agent_repo = agents_data[agent_name].get("repo")
+        if not agent_repo:
+            agent_repo = repo_prefix + agent_name
+        subprocess.check_call(["git", "clone", "--no-checkout", agent_repo], cwd=agent_docs_root)
+        # for 1st version not doing api-docs. If doing api-docs do full checkout, install requirements, run api-docs
+        agent_clone_dir = os.path.join(agent_docs_root, agent_name)
+        agent_version = agents_data[agent_name]["version"]
+        subprocess.check_call(["git", "checkout", agent_version], cwd=agent_clone_dir)
+        docs_source_dir = agents_data[agent_name].get("docs_dir", "docs/source")
+        subprocess.check_call(["git", "sparse-checkout", "set", docs_source_dir], cwd=agent_clone_dir)
+
+
+def clean_agent_docs_rst(app, exception):
+    """
+    Deletes folder containing all auto generated .rst files at the end of
+    sphinx build immaterial of the exit state of sphinx build.
+    :param app:
+    :param exception:
+    """
+    global agent_docs_root
+    import shutil
+    if os.path.exists(agent_docs_root):
+        print("Cleanup: Removing agent docs clone directory {}".format(agent_docs_root))
+        shutil.rmtree(agent_docs_root)
