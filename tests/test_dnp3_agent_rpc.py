@@ -5,6 +5,7 @@ The volltron instance and dnp3-agent is start manually.
 Note: need to define VOLTTRON_HOME and vip-identity for dnp3 outstation agent
 Note: The `launch-agent` script can be used to start the dnp3 outstation agent.
 """
+import gevent
 import pytest
 import os
 from volttron.client.vip.agent import build_agent
@@ -13,15 +14,106 @@ import datetime
 from dnp3_outstation.agent import Dnp3OutstationAgent
 from dnp3_python.dnp3station.outstation_new import MyOutStationNew
 import random
+import subprocess
+from volttron.utils import is_volttron_running
 
 dnp3_vip_identity = "dnp3_outstation"
 
 
 @pytest.fixture(scope="module")
-def vip_agent():
+def volttron_home():
+    """
+    VOLTTRON_HOME environment variable suggested to setup at pytest.ini [env]
+    """
+    volttron_home: str = os.getenv("VOLTTRON_HOME")
+    assert volttron_home
+    return volttron_home
+
+
+def test_volttron_home_fixture(volttron_home):
+    assert volttron_home
+    print(volttron_home)
+
+
+def test_testing_file_path():
+    parent_path = os.getcwd()
+    dnp3_agent_config_path = os.path.join(parent_path, "dnp3-outstation-config.json")
+    print(dnp3_agent_config_path)
+
+
+@pytest.fixture(scope="module")
+def volttron_platform_wrapper_new(volttron_home):
+    print("========== 1st", is_volttron_running(volttron_home))
+    # start the platform, check status with flexible retry
+    res = subprocess.Popen(["volttron"])  # use Popen, no-blocking
+    max_try = 10
+    while not is_volttron_running(volttron_home) and max_try > 0:
+        gevent.sleep(1)
+        print(f"starting platform, left to try: {max_try}")
+        max_try -= 1
+    print("========== 2nd", is_volttron_running(volttron_home))
+
+    yield volttron_home
+
+    subprocess.Popen(["vctl", "shutdown", "--platform"])
+    max_try = 10
+    while is_volttron_running(volttron_home) and max_try > 0:
+        gevent.sleep(1)
+        print(f"shutting down platform, left to try: {max_try}")
+        max_try -= 1
+    print("========== 3rd", is_volttron_running(volttron_home))
+
+def test_volttron_platform_wrapper_new_fixture(volttron_platform_wrapper_new):
+    print(volttron_platform_wrapper_new)
+
+
+@pytest.fixture(scope="module")
+def vip_agent(volttron_platform_wrapper_new):
+
+    # build a vip agent
     a = build_agent()
     print(a)
+
+    # # install a dnp3-outstation-agent
+    # parent_path = os.getcwd()
+    # dnp3_agent_config_path = os.path.join(parent_path, "dnp3-outstation-config.json")
+    # cmd = f"vctl install volttron-dnp3-outstation --agent-config {dnp3_agent_config_path} " +\
+    #       "--vip-identity dnp3_outstation --start --force"
+    # res = subprocess.run(cmd.split(" "),
+    #                      stdout=subprocess.PIPE)
+    # print(f"=========== cmd {cmd}, res {res.stdout}")
+
     return a
+
+
+def test_install_dnp3_outstation_agent(vip_agent):
+
+
+    # install a dnp3-outstation-agent
+    parent_path = os.getcwd()
+    dnp3_agent_config_path = os.path.join(parent_path, "dnp3-outstation-config.json")
+    cmd = f"vctl install volttron-dnp3-outstation --agent-config {dnp3_agent_config_path} " +\
+          "--vip-identity dnp3_outstation --start --force"
+    res = subprocess.run(cmd.split(" "),
+                         stdout=subprocess.PIPE)
+    print(f"=========== cmd {cmd}, res {res.stdout}")
+
+    gevent.sleep(10)
+    cmd = f"vctl status"
+    res = subprocess.run(cmd.split(" "),
+                         stdout=subprocess.PIPE)
+    print(f"=========== cmd {cmd}, res {res.stdout}")
+
+    res = vip_agent.vip.peerlist.list().get(10)
+    print(f"=========== vip_agent.vip.peerlist.list().get(10), res {res}")
+
+
+def test_sandbox():
+    pass
+    from volttrontesting.platformwrapper import PlatformWrapper
+    pw = PlatformWrapper()
+    res = pw.agent_pid("577a5e05-6ad6-43f8-a859-08399f8fe0cd")
+    print("============", res)
 
 
 def test_vip_agent(vip_agent):
