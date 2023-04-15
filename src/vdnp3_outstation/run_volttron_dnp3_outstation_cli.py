@@ -56,10 +56,10 @@ def print_menu():
 def check_agent_id_existence(agent_id: str, vip_agent: Agent):
     rs = vip_agent.vip.peerlist.list().get(5)
     if agent_id not in rs:
-        # raise ValueError(f"There is no agent named `{agent_id}` available on the message bus."
-        #                  f"Available peers are {rs}")
-        _log.warning(f"There is no agent named `{agent_id}` available on the message bus."
+        raise ValueError(f"There is no agent named `{agent_id}` available on the message bus."
                          f"Available peers are {rs}")
+        # _log.warning(f"There is no agent named `{agent_id}` available on the message bus."
+        #                  f"Available peers are {rs}")
 
 
 
