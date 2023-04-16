@@ -5,6 +5,8 @@ The volltron instance and dnp3-agent is start manually.
 Note: need to define VOLTTRON_HOME and vip-identity for dnp3 outstation agent
 Note: The `launch-agent` script can be used to start the dnp3 outstation agent.
 """
+import pathlib
+
 import gevent
 import pytest
 import os
@@ -16,6 +18,8 @@ from dnp3_python.dnp3station.outstation_new import MyOutStationNew
 import random
 import subprocess
 from volttron.utils import is_volttron_running
+import json
+from utils.testing_utils import *
 
 dnp3_vip_identity = "dnp3_outstation"
 
@@ -43,25 +47,23 @@ def test_testing_file_path():
 
 @pytest.fixture(scope="module")
 def volttron_platform_wrapper_new(volttron_home):
-    print("========== 1st", is_volttron_running(volttron_home))
+    print(f"==== 1st, is_volttron_running at volttron_home={volttron_home}:  {is_volttron_running(volttron_home)}")
     # start the platform, check status with flexible retry
-    res = subprocess.Popen(["volttron"])  # use Popen, no-blocking
-    max_try = 10
-    while not is_volttron_running(volttron_home) and max_try > 0:
-        gevent.sleep(1)
-        print(f"starting platform, left to try: {max_try}")
-        max_try -= 1
-    print("========== 2nd", is_volttron_running(volttron_home))
+    process = subprocess.Popen(["volttron"])  # use Popen, no-blocking
+    retry_call(f=is_volttron_running, f_kwargs=dict(volttron_home=volttron_home), max_retries=10, delay_s=1,
+               pass_criteria=True)
+    print(f"==== 2nd, is_volttron_running at volttron_home={volttron_home}:  {is_volttron_running(volttron_home)}")
+    if not is_volttron_running(volttron_home):
+        raise f"VOLTTRON platform failed to start with volttron_home: {volttron_home}."
 
     yield volttron_home
 
     subprocess.Popen(["vctl", "shutdown", "--platform"])
-    max_try = 10
-    while is_volttron_running(volttron_home) and max_try > 0:
-        gevent.sleep(1)
-        print(f"shutting down platform, left to try: {max_try}")
-        max_try -= 1
-    print("========== 3rd", is_volttron_running(volttron_home))
+    retry_call(f=is_volttron_running, f_kwargs=dict(volttron_home=volttron_home), max_retries=10, delay_s=1,
+               wait_before_call_s=2,
+               pass_criteria=False)
+    print(f"==== 3rd, is_volttron_running at volttron_home={volttron_home}:  {is_volttron_running(volttron_home)}")
+
 
 def test_volttron_platform_wrapper_new_fixture(volttron_platform_wrapper_new):
     print(volttron_platform_wrapper_new)
@@ -69,55 +71,62 @@ def test_volttron_platform_wrapper_new_fixture(volttron_platform_wrapper_new):
 
 @pytest.fixture(scope="module")
 def vip_agent(volttron_platform_wrapper_new):
-
     # build a vip agent
     a = build_agent()
     print(a)
-
-    # # install a dnp3-outstation-agent
-    # parent_path = os.getcwd()
-    # dnp3_agent_config_path = os.path.join(parent_path, "dnp3-outstation-config.json")
-    # cmd = f"vctl install volttron-dnp3-outstation --agent-config {dnp3_agent_config_path} " +\
-    #       "--vip-identity dnp3_outstation --start --force"
-    # res = subprocess.run(cmd.split(" "),
-    #                      stdout=subprocess.PIPE)
-    # print(f"=========== cmd {cmd}, res {res.stdout}")
-
     return a
 
 
-def test_install_dnp3_outstation_agent(vip_agent):
+def test_vip_agent_fixture(vip_agent):
+    print(vip_agent)
 
+
+def test_install_dnp3_outstation_agent(volttron_platform_wrapper_new):
+    # # Cached json objects
+    # cached_json_obj: CashedVctlStatus = CashedVctlStatus()
+    # cached_json_obj.update_json()
 
     # install a dnp3-outstation-agent
     parent_path = os.getcwd()
+    dnp3_outstation_package_path = pathlib.Path(parent_path).parent
     dnp3_agent_config_path = os.path.join(parent_path, "dnp3-outstation-config.json")
-    cmd = f"vctl install volttron-dnp3-outstation --agent-config {dnp3_agent_config_path} " +\
-          "--vip-identity dnp3_outstation --start --force"
-    res = subprocess.run(cmd.split(" "),
-                         stdout=subprocess.PIPE)
-    print(f"=========== cmd {cmd}, res {res.stdout}")
+    agent_vip_id = "dnp3_outstation"
+    # Note: for volttron 10.0.3a7, `vctl install <package-name>` will pip install from Pypi,
+    # which does not point to the current code source.
+    # Use `vctl install <package-path>` instead
+    cmd = f"vctl install {dnp3_outstation_package_path} --agent-config {dnp3_agent_config_path} " + \
+          f"--vip-identity {agent_vip_id}"
+    print(f"========== 1st test_dnp3_agent_install vctl --json status", vctl_json_status())
 
-    gevent.sleep(10)
-    cmd = f"vctl status"
-    res = subprocess.run(cmd.split(" "),
-                         stdout=subprocess.PIPE)
-    print(f"=========== cmd {cmd}, res {res.stdout}")
+    res = subprocess.Popen(cmd, shell=True,
+                           stdout=subprocess.PIPE)  # Need to use subprocess.run to wait for the process finish
+    # print(res.stdout.decode())
 
-    res = vip_agent.vip.peerlist.list().get(10)
-    print(f"=========== vip_agent.vip.peerlist.list().get(10), res {res}")
+    print(f"========== 1st(b) test_dnp3_agent_install vctl --json status", vctl_json_status())
+    # check if installed successfully
+
+    res = retry_call(f=is_agent_installed, f_kwargs=dict(agent_vip_identity=agent_vip_id), max_retries=60, delay_s=2,
+                     wait_before_call_s=2, pass_criteria=True)
+    print(f"========== 1st(b) retry_call", res)
+
+    # starting agent
+    uuid = get_agent_uuid(agent_vip_id)
+    start_agent(uuid)
+    # check if starting successfully
+    print(f"========== 3rd test_dnp3_agent_install vctl --json status", vctl_json_status())
+    res = retry_call(f=is_agent_running, f_kwargs=dict(agent_vip_identity=agent_vip_id), max_retries=15, delay_s=2,
+                     wait_before_call_s=2, pass_criteria=True)
+    print(f"========== 3rd retry_call", res)
 
 
 def test_sandbox():
-    pass
-    from volttrontesting.platformwrapper import PlatformWrapper
-    pw = PlatformWrapper()
-    res = pw.agent_pid("577a5e05-6ad6-43f8-a859-08399f8fe0cd")
-    print("============", res)
+    res = get_agent_uuid("dnp3_outstation")
+    print("========", res)
 
-
-def test_vip_agent(vip_agent):
-    print(vip_agent)
+    res = vctl_json_status()
+    print("========", res)
+    # res = vctl_json_status()
+    # print("========", res)
 
 
 def test_dummy(vip_agent):
