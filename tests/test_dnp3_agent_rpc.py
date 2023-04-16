@@ -101,13 +101,15 @@ def dnp3_outstation_agent(volttron_platform_wrapper_new) -> str:
     # Use `vctl install <package-path>` instead
     cmd = f"vctl install {dnp3_outstation_package_path} --agent-config {dnp3_agent_config_path} " + \
           f"--vip-identity {agent_vip_id}"
-    print(f"========== 1st test_dnp3_agent_install vctl --json status", vctl_json_status())
+    # print(f"========== 1st test_dnp3_agent_install vctl --json status", vctl_json_status())
+    logging_logger.info(f"===== 1st test_dnp3_agent_install vctl --json --status {vctl_json_status()}")
 
     res = subprocess.Popen(cmd, shell=True,
                            stdout=subprocess.PIPE)  # Need to use subprocess.run to wait for the process finish
     # print(res.stdout.decode())
 
-    print(f"========== 1st(b) test_dnp3_agent_install vctl --json status", vctl_json_status())
+    # print(f"========== 1st(b) test_dnp3_agent_install vctl --json status", vctl_json_status())
+    logging_logger.info(f"===== 1st(b) test_dnp3_agent_install vctl --json --status {vctl_json_status()}")
     # check if installed successfully
 
     res = retry_call(f=is_agent_installed, f_kwargs=dict(agent_vip_identity=agent_vip_id), max_retries=60, delay_s=2,
@@ -122,6 +124,7 @@ def dnp3_outstation_agent(volttron_platform_wrapper_new) -> str:
     res = retry_call(f=is_agent_running, f_kwargs=dict(agent_vip_identity=agent_vip_id), max_retries=15, delay_s=2,
                      wait_before_call_s=2, pass_criteria=True)
     print(f"========== 3rd retry_call", res)
+    logging_logger.info(f"===== 3rd test_dnp3_agent_install vctl --json --status {vctl_json_status()}")
     return agent_vip_id
 
 
