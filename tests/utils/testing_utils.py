@@ -73,7 +73,6 @@ def is_agent_running(agent_vip_identity: str):
     else:
         # raise ValueError(f"agent_vip_identity: {agent_vip_identity} is not in the peerlist")
         pass
-        # TODO: log this
 
 
 def get_agent_uuid(agent_vip_identity: str) -> str:
@@ -87,7 +86,6 @@ def get_agent_uuid(agent_vip_identity: str) -> str:
     else:
         # raise ValueError(f"agent_vip_identity: {agent_vip_identity} is not in the peerlist")
         pass
-        # TODO: log this
 
 
 def start_agent(uuid: str) -> str:

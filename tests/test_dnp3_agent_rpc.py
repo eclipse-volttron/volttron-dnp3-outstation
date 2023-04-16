@@ -1,9 +1,13 @@
 """
-This test suits focus on exposed RPC calls.
+This test suits focus on the exposed RPC calls.
 It utilizes a vip agent to evoke the RPC calls.
 The volltron instance and dnp3-agent is start manually.
-Note: need to define VOLTTRON_HOME and vip-identity for dnp3 outstation agent
-Note: The `launch-agent` script can be used to start the dnp3 outstation agent.
+Note: need to define VOLTTRON_HOME at pytest.ini
+    and vip-identity for dnp3 outstation agent (default "dnp3_outstation")
+Note: several fixtures are used
+    volttron_platform_wrapper_new
+    vip_agent
+    dnp3_outstation_agent
 """
 import pathlib
 
@@ -57,7 +61,7 @@ def volttron_platform_wrapper_new(volttron_home):
         raise f"VOLTTRON platform failed to start with volttron_home: {volttron_home}."
 
     yield volttron_home
-
+    # TODO: add clean up options to remove volttron_home
     subprocess.Popen(["vctl", "shutdown", "--platform"])
     retry_call(f=is_volttron_running, f_kwargs=dict(volttron_home=volttron_home), max_retries=10, delay_s=1,
                wait_before_call_s=2,
@@ -81,16 +85,17 @@ def test_vip_agent_fixture(vip_agent):
     print(vip_agent)
 
 
-def test_install_dnp3_outstation_agent(volttron_platform_wrapper_new):
-    # # Cached json objects
-    # cached_json_obj: CashedVctlStatus = CashedVctlStatus()
-    # cached_json_obj.update_json()
-
+@pytest.fixture(scope="module")
+def dnp3_outstation_agent(volttron_platform_wrapper_new) -> str:
+    """
+    Install and start a dnp3-outstation-agent, return its vip-identity
+    """
+    # TODO: use yield and add clean-up
     # install a dnp3-outstation-agent
     parent_path = os.getcwd()
     dnp3_outstation_package_path = pathlib.Path(parent_path).parent
     dnp3_agent_config_path = os.path.join(parent_path, "dnp3-outstation-config.json")
-    agent_vip_id = "dnp3_outstation"
+    agent_vip_id = dnp3_vip_identity
     # Note: for volttron 10.0.3a7, `vctl install <package-name>` will pip install from Pypi,
     # which does not point to the current code source.
     # Use `vctl install <package-path>` instead
@@ -117,19 +122,14 @@ def test_install_dnp3_outstation_agent(volttron_platform_wrapper_new):
     res = retry_call(f=is_agent_running, f_kwargs=dict(agent_vip_identity=agent_vip_id), max_retries=15, delay_s=2,
                      wait_before_call_s=2, pass_criteria=True)
     print(f"========== 3rd retry_call", res)
+    return agent_vip_id
 
 
-def test_sandbox():
-    res = get_agent_uuid("dnp3_outstation")
-    print("========", res)
-
-    res = vctl_json_status()
-    print("========", res)
-    # res = vctl_json_status()
-    # print("========", res)
+def test_install_dnp3_outstation_agent_fixture(dnp3_outstation_agent):
+    print(dnp3_outstation_agent)
 
 
-def test_dummy(vip_agent):
+def test_dummy(vip_agent, dnp3_outstation_agent):
     peer = dnp3_vip_identity
     method = Dnp3OutstationAgent.rpc_dummy
     peer_method = method.__name__  # "rpc_dummy"
@@ -137,7 +137,7 @@ def test_dummy(vip_agent):
     print(datetime.datetime.now(), "rs: ", rs)
 
 
-def test_outstation_reset(vip_agent):
+def test_outstation_reset(vip_agent, dnp3_outstation_agent):
     peer = dnp3_vip_identity
     method = Dnp3OutstationAgent.reset_outstation
     peer_method = method.__name__  # "reset_outstation"
@@ -145,7 +145,7 @@ def test_outstation_reset(vip_agent):
     print(datetime.datetime.now(), "rs: ", rs)
 
 
-def test_outstation_get_db(vip_agent):
+def test_outstation_get_db(vip_agent, dnp3_outstation_agent):
     peer = dnp3_vip_identity
     method = Dnp3OutstationAgent.display_outstation_db
     peer_method = method.__name__  # "display_outstation_db"
@@ -153,7 +153,7 @@ def test_outstation_get_db(vip_agent):
     print(datetime.datetime.now(), "rs: ", rs)
 
 
-def test_outstation_get_config(vip_agent):
+def test_outstation_get_config(vip_agent, dnp3_outstation_agent):
     peer = dnp3_vip_identity
     method = Dnp3OutstationAgent.get_outstation_config
     peer_method = method.__name__  # "get_outstation_config"
@@ -161,7 +161,7 @@ def test_outstation_get_config(vip_agent):
     print(datetime.datetime.now(), "rs: ", rs)
 
 
-def test_outstation_is_connected(vip_agent):
+def test_outstation_is_connected(vip_agent, dnp3_outstation_agent):
     peer = dnp3_vip_identity
     method = Dnp3OutstationAgent.is_outstation_connected
     peer_method = method.__name__  # "is_outstation_connected"
@@ -169,7 +169,7 @@ def test_outstation_is_connected(vip_agent):
     print(datetime.datetime.now(), "rs: ", rs)
 
 
-def test_outstation_apply_update_analog_input(vip_agent):
+def test_outstation_apply_update_analog_input(vip_agent, dnp3_outstation_agent):
     peer = dnp3_vip_identity
     method = Dnp3OutstationAgent.apply_update_analog_input
     peer_method = method.__name__  # "apply_update_analog_input"
@@ -183,7 +183,7 @@ def test_outstation_apply_update_analog_input(vip_agent):
     assert val_new == val
 
 
-def test_outstation_apply_update_analog_output(vip_agent):
+def test_outstation_apply_update_analog_output(vip_agent, dnp3_outstation_agent):
     peer = dnp3_vip_identity
     method = Dnp3OutstationAgent.apply_update_analog_output
     peer_method = method.__name__  # "apply_update_analog_output"
@@ -197,7 +197,7 @@ def test_outstation_apply_update_analog_output(vip_agent):
     assert val_new == val
 
 
-def test_outstation_apply_update_binary_input(vip_agent):
+def test_outstation_apply_update_binary_input(vip_agent, dnp3_outstation_agent):
     peer = dnp3_vip_identity
     method = Dnp3OutstationAgent.apply_update_binary_input
     peer_method = method.__name__  # "apply_update_binary_input"
@@ -211,7 +211,7 @@ def test_outstation_apply_update_binary_input(vip_agent):
     assert val_new == val
 
 
-def test_outstation_apply_update_binary_output(vip_agent):
+def test_outstation_apply_update_binary_output(vip_agent, dnp3_outstation_agent):
     peer = dnp3_vip_identity
     method = Dnp3OutstationAgent.apply_update_binary_output
     peer_method = method.__name__  # "apply_update_binary_output"
@@ -225,7 +225,7 @@ def test_outstation_apply_update_binary_output(vip_agent):
     assert val_new == val
 
 
-def test_outstation_update_config_with_restart(vip_agent):
+def test_outstation_update_config_with_restart(vip_agent, dnp3_outstation_agent):
     peer = dnp3_vip_identity
     method = Dnp3OutstationAgent.update_outstation
     peer_method = method.__name__  # "update_outstation"
