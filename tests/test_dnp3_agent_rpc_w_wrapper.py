@@ -15,7 +15,7 @@ import os
 from volttron.client.vip.agent import build_agent
 from time import sleep
 import datetime
-from src.dnp3_outstation.agent import Dnp3OutstationAgent
+from dnp3_outstation.agent import Dnp3OutstationAgent
 from dnp3_python.dnp3station.outstation_new import MyOutStationNew
 import random
 import subprocess
