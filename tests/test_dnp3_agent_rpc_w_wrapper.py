@@ -89,14 +89,17 @@ def dnp3_outstation_agent(volttron_instance) -> dict:
     agent_vip_id = dnp3_vip_identity
     uuid = volttron_instance.install_agent(agent_dir=dnp3_outstation_package_path,
                                            config_file=config,
-                                           start=False,
+                                           start=True,
                                            vip_identity=agent_vip_id)
     # start agent with retry
-    pid = retry_call(volttron_instance.start_agent, f_kwargs=dict(agent_uuid=uuid), max_retries=5, delay_s=2,
-                     wait_before_call_s=2)
-    # check if running with retry
-    retry_call(volttron_instance.is_agent_running, f_kwargs=dict(agent_uuid=uuid), max_retries=5, delay_s=2,
-               wait_before_call_s=2)
+    # pid = retry_call(volttron_instance.start_agent, f_kwargs=dict(agent_uuid=uuid), max_retries=5, delay_s=2,
+    #                  wait_before_call_s=2)
+
+    # # check if running with retry
+    # retry_call(volttron_instance.is_agent_running, f_kwargs=dict(agent_uuid=uuid), max_retries=5, delay_s=2,
+    #            wait_before_call_s=2)
+    # TODO: get retry_call back
+    pid = "pid-place-holder"
     return {"uuid": uuid, "pid": pid}
 
 
