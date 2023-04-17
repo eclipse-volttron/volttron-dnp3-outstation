@@ -79,7 +79,7 @@ def dnp3_outstation_agent(volttron_instance) -> dict:
     # install a dnp3-outstation-agent
     parent_path = os.getcwd()
     dnp3_outstation_package_path = pathlib.Path(parent_path).parent
-    dnp3_agent_config_path = os.path.join(parent_path, "dnp3-outstation-config.json")
+    dnp3_agent_config_path = str(os.path.join(parent_path, "dnp3-outstation-config.json"))
     config = {
         "outstation_ip": "0.0.0.0",
         "master_id": 2,
@@ -89,7 +89,7 @@ def dnp3_outstation_agent(volttron_instance) -> dict:
     agent_vip_id = dnp3_vip_identity
     uuid = volttron_instance.install_agent(agent_dir=dnp3_outstation_package_path,
                                            config_file=config,
-                                           start=False,  #Note: for some reason, need to set to False, then start
+                                           start=False,  # Note: for some reason, need to set to False, then start
                                            vip_identity=agent_vip_id)
     # start agent with retry
     # pid = retry_call(volttron_instance.start_agent, f_kwargs=dict(agent_uuid=uuid), max_retries=5, delay_s=2,
