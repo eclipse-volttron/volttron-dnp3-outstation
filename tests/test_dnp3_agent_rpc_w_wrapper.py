@@ -15,7 +15,7 @@ import os
 from volttron.client.vip.agent import build_agent
 from time import sleep
 import datetime
-from dnp3_outstation.agent import Dnp3OutstationAgent
+from src.dnp3_outstation.agent import Dnp3OutstationAgent
 from dnp3_python.dnp3station.outstation_new import MyOutStationNew
 import random
 import subprocess
@@ -81,8 +81,9 @@ def dnp3_outstation_agent(volttron_instance) -> dict:
     Install and start a dnp3-outstation-agent, return its vip-identity
     """
     # install a dnp3-outstation-agent
-    parent_path = os.getcwd()
-    dnp3_outstation_package_path = pathlib.Path(parent_path).parent
+    # TODO: improve the following hacky path resolver
+    parent_path = pathlib.Path(__file__)
+    dnp3_outstation_package_path = pathlib.Path(parent_path).parent.parent
     dnp3_agent_config_path = str(os.path.join(parent_path, "dnp3-outstation-config.json"))
     config = {
         "outstation_ip": "0.0.0.0",
