@@ -21,8 +21,12 @@ import random
 import subprocess
 from volttron.utils import is_volttron_running
 import json
-from utils.testing_utils import *
+# from utils.testing_utils import *
 from volttrontesting.fixtures.volttron_platform_fixtures import volttron_instance
+
+import logging
+
+logging_logger = logging.getLogger(__name__)
 
 dnp3_vip_identity = "dnp3_outstation"
 
@@ -87,7 +91,9 @@ def dnp3_outstation_agent(volttron_instance) -> dict:
         "port": 20000
     }
     agent_vip_id = dnp3_vip_identity
-    uuid = volttron_instance.install_agent(agent_dir=dnp3_outstation_package_path,
+    uuid = volttron_instance.install_agent(
+        # agent_dir=dnp3_outstation_package_path,
+                                           agent_dir="volttron-dnp3-oustation",
                                            config_file=config,
                                            start=False,  # Note: for some reason, need to set to False, then start
                                            vip_identity=agent_vip_id)
