@@ -93,7 +93,7 @@ def dnp3_outstation_agent(volttron_instance) -> dict:
     agent_vip_id = dnp3_vip_identity
     uuid = volttron_instance.install_agent(
         # agent_dir=dnp3_outstation_package_path,
-                                           agent_dir="volttron-dnp3-oustation",
+                                           agent_dir="volttron-dnp3-outstation",
                                            config_file=config,
                                            start=False,  # Note: for some reason, need to set to False, then start
                                            vip_identity=agent_vip_id)
