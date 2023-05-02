@@ -94,10 +94,10 @@ def dnp3_outstation_agent(volttron_instance) -> dict:
     agent_vip_id = dnp3_vip_identity
     uuid = volttron_instance.install_agent(
         agent_dir=dnp3_outstation_package_path,
-                                           # agent_dir="volttron-dnp3-outastion",
-                                           config_file=config,
-                                           start=False,  # Note: for some reason, need to set to False, then start
-                                           vip_identity=agent_vip_id)
+        # agent_dir="volttron-dnp3-outastion",
+        config_file=config,
+        start=False,  # Note: for some reason, need to set to False, then start
+        vip_identity=agent_vip_id)
     # start agent with retry
     # pid = retry_call(volttron_instance.start_agent, f_kwargs=dict(agent_uuid=uuid), max_retries=5, delay_s=2,
     #                  wait_before_call_s=2)
@@ -108,7 +108,8 @@ def dnp3_outstation_agent(volttron_instance) -> dict:
     gevent.sleep(5)
     pid = volttron_instance.start_agent(uuid)
     gevent.sleep(5)
-    logging_logger.info(f"=========== volttron_instance.is_agent_running(uuid): {volttron_instance.is_agent_running(uuid)}")
+    logging_logger.info(
+        f"=========== volttron_instance.is_agent_running(uuid): {volttron_instance.is_agent_running(uuid)}")
     # TODO: get retry_call back
     return {"uuid": uuid, "pid": pid}
 
@@ -131,11 +132,16 @@ def test_dummy(vip_agent, dnp3_outstation_agent):
 
 
 def test_outstation_reset(vip_agent, dnp3_outstation_agent):
+
     peer = dnp3_vip_identity
     method = Dnp3OutstationAgent.reset_outstation
     peer_method = method.__name__  # "reset_outstation"
-    rs = vip_agent.vip.rpc.call(peer, peer_method).get(timeout=5)
-    print(datetime.datetime.now(), "rs: ", rs)
+    # note: reset_outstation returns None, check if raise or time out instead
+    try:
+        rs = vip_agent.vip.rpc.call(peer, peer_method).get(timeout=5)
+        print(datetime.datetime.now(), "rs: ", rs)
+    except BaseException as e:
+        assert False
 
 
 def test_outstation_get_db(vip_agent, dnp3_outstation_agent):
@@ -144,6 +150,15 @@ def test_outstation_get_db(vip_agent, dnp3_outstation_agent):
     peer_method = method.__name__  # "display_outstation_db"
     rs = vip_agent.vip.rpc.call(peer, peer_method).get(timeout=5)
     print(datetime.datetime.now(), "rs: ", rs)
+    assert rs == {
+        'Analog': {'0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None, '7': None, '8': None,
+                   '9': None},
+        'AnalogOutputStatus': {'0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None, '7': None,
+                               '8': None, '9': None},
+        'Binary': {'0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None, '7': None, '8': None,
+                   '9': None},
+        'BinaryOutputStatus': {'0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None, '7': None,
+                               '8': None, '9': None}}
 
 
 def test_outstation_get_config(vip_agent, dnp3_outstation_agent):
@@ -152,6 +167,7 @@ def test_outstation_get_config(vip_agent, dnp3_outstation_agent):
     peer_method = method.__name__  # "get_outstation_config"
     rs = vip_agent.vip.rpc.call(peer, peer_method).get(timeout=5)
     print(datetime.datetime.now(), "rs: ", rs)
+    assert rs == {'outstation_ip_str': '0.0.0.0', 'port': 20000, 'masterstation_id_int': 2, 'outstation_id_int': 1}
 
 
 def test_outstation_is_connected(vip_agent, dnp3_outstation_agent):
@@ -160,6 +176,7 @@ def test_outstation_is_connected(vip_agent, dnp3_outstation_agent):
     peer_method = method.__name__  # "is_outstation_connected"
     rs = vip_agent.vip.rpc.call(peer, peer_method).get(timeout=5)
     print(datetime.datetime.now(), "rs: ", rs)
+    assert rs in [True, False]
 
 
 def test_outstation_apply_update_analog_input(vip_agent, dnp3_outstation_agent):
