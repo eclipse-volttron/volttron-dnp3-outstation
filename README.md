@@ -161,7 +161,7 @@ implementation details of the RPC examples.
 
 1. Start the dnp3 outstation cli
 
-   Start the volttron-dnp3-outstation cli with `vdnp3_outstation --agent-identity <agent-id>`. If you
+   Start the volttron-dnp3-outstation cli. If you
    follow along this demo, the agent vip-identity should be "dnp3_outstation".
 
    ```shell
