@@ -58,6 +58,9 @@ def check_agent_id_existence(agent_id: str, vip_agent: Agent):
     if agent_id not in rs:
         raise ValueError(f"There is no agent named `{agent_id}` available on the message bus."
                          f"Available peers are {rs}")
+        # _log.warning(f"There is no agent named `{agent_id}` available on the message bus."
+        #                  f"Available peers are {rs}")
+
 
 
 def main(parser=None, *args, **kwargs):
