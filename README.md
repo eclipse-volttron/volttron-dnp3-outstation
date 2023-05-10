@@ -1,6 +1,10 @@
 # volttron-dnp3-outstation
 
-[//]: # (TODO: get the badges)
+[![Eclipse VOLTTRON™](https://img.shields.io/badge/Eclips%20VOLTTRON--red.svg)](https://volttron.readthedocs.io/en/latest/)
+![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)
+![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)
+[![Pytests](https://github.com/eclipse-volttron/volttron-dnp3-outstation/actions/workflows/run-tests.yml/badge.svg)](https://github.com/eclipse-volttron/volttron-dnp3-outstation/actions/workflows/run-tests.yml)
+[![pypi version](https://img.shields.io/pypi/v/volttron-dnp3-outstation.svg)](https://pypi.org/project/volttron-dnp3-outstation/)
 
 Distributed Network Protocol (DNP
 or [DNP3](https://en.wikipedia.org/wiki/DNP3))
@@ -40,11 +44,11 @@ export PATH="${HOME}/.pyenv/bin:${PATH}"
 export PYENV_ROOT="${HOME}/.pyenv"
 eval "$(pyenv init -)"
 
-# install Python 3.8
-pyenv install 3.8.10
+# install Python 3.10
+pyenv install 3.10
 
 # make it available globally
-pyenv global system 3.8.10
+pyenv global system 3.10
 ```
 
 </details>
@@ -70,7 +74,6 @@ work out-of-the-box. Please feel free to refer to related documentations for det
    > **Note**:
    > According to the [volttron-core#README](https://github.com/eclipse-volttron/volttron-core#readme), setup VOLTTRON_HOME
    > environment variable is mandatory:
-
    > ... if you have/had in the past, a monolithic VOLTTRON version that used the default VOLTTRON_HOME
    > $HOME/.volttron. This modular version of VOLTTRON cannot work with volttron_home used by monolithic version of
    > VOLTTRON(version 8.3 or earlier)
@@ -88,8 +91,7 @@ work out-of-the-box. Please feel free to refer to related documentations for det
    There are two options to install the DNP3 Driver. You can install this library using the version on PyPi or install
    it from the source code (`git clone` might be required.)
    Note: the `vctl install` command in the following step can handle dependency installation using pypi. However, in
-   this demo we
-   demonstrate what is happening under the neath the hood by separating the dependency installation and agent registry
+   this demo we demonstrate what is happening under the neath the hood by separating the dependency installation and agent registry
    steps.
 
     ```shell
