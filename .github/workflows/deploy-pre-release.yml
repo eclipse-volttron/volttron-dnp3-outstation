@@ -12,13 +12,14 @@ defaults:
 env:
   LANG: en_US.utf-8
   LC_ALL: en_US.utf-8
-  PYTHON_VERSION: '3.8'
+  PYTHON_VERSION: '3.10'
   POETRY_VERSION: 1.2.2
   OWNER: eclipse-volttron
 
 jobs:
 
   deploy-pre-release:
+    if: github.ref_name != 'main'
     runs-on: ubuntu-22.04
     steps:
     - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."

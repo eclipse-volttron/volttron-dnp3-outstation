@@ -1,6 +1,10 @@
 # volttron-dnp3-outstation
 
-[//]: # (TODO: get the badges)
+[![Eclipse VOLTTRON™](https://img.shields.io/badge/Eclips%20VOLTTRON--red.svg)](https://volttron.readthedocs.io/en/latest/)
+![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)
+![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)
+[![Pytests](https://github.com/eclipse-volttron/volttron-dnp3-outstation/actions/workflows/run-tests.yml/badge.svg)](https://github.com/eclipse-volttron/volttron-dnp3-outstation/actions/workflows/run-tests.yml)
+[![pypi version](https://img.shields.io/pypi/v/volttron-dnp3-outstation.svg)](https://pypi.org/project/volttron-dnp3-outstation/)
 
 Distributed Network Protocol (DNP
 or [DNP3](https://en.wikipedia.org/wiki/DNP3))
@@ -40,11 +44,11 @@ export PATH="${HOME}/.pyenv/bin:${PATH}"
 export PYENV_ROOT="${HOME}/.pyenv"
 eval "$(pyenv init -)"
 
-# install Python 3.8
-pyenv install 3.8.10
+# install Python 3.10
+pyenv install 3.10
 
 # make it available globally
-pyenv global system 3.8.10
+pyenv global system 3.10
 ```
 
 </details>
@@ -70,7 +74,6 @@ work out-of-the-box. Please feel free to refer to related documentations for det
    > **Note**:
    > According to the [volttron-core#README](https://github.com/eclipse-volttron/volttron-core#readme), setup VOLTTRON_HOME
    > environment variable is mandatory:
-
    > ... if you have/had in the past, a monolithic VOLTTRON version that used the default VOLTTRON_HOME
    > $HOME/.volttron. This modular version of VOLTTRON cannot work with volttron_home used by monolithic version of
    > VOLTTRON(version 8.3 or earlier)
@@ -88,8 +91,7 @@ work out-of-the-box. Please feel free to refer to related documentations for det
    There are two options to install the DNP3 Driver. You can install this library using the version on PyPi or install
    it from the source code (`git clone` might be required.)
    Note: the `vctl install` command in the following step can handle dependency installation using pypi. However, in
-   this demo we
-   demonstrate what is happening under the neath the hood by separating the dependency installation and agent registry
+   this demo we demonstrate what is happening under the neath the hood by separating the dependency installation and agent registry
    steps.
 
     ```shell
@@ -147,7 +149,7 @@ implementation details of the RPC examples.
 1. (Optional) Inspect the dnp3 outstation cli help menu.
 
    ```shell
-   (env) kefei@ubuntu-22:~/sandbox/dnp3-driver-sandbox$ vdnp3_outstation -h
+   (env) kefei@ubuntu-22:~/sandbox/dnp3-driver-sandbox$ python -m vdnp3_outstation.run_volttron_dnp3_outstation_cli -h
    usage: dnp3-outstation [-h] [-aid <peer-name>]
    
    Run a dnp3 outstation agent. Specify agent identity, by default `dnp3_outstation`
@@ -161,11 +163,11 @@ implementation details of the RPC examples.
 
 1. Start the dnp3 outstation cli
 
-   Start the volttron-dnp3-outstation cli with `vdnp3_outstation --agent-identity <agent-id>`. If you
+   Start the volttron-dnp3-outstation cli. If you
    follow along this demo, the agent vip-identity should be "dnp3_outstation".
 
    ```shell
-   (env) kefei@ubuntu-22:~/sandbox/dnp3-agent-sandbox$ vdnp3_outstation --agent-identity dnp3_outstation
+   (env) kefei@ubuntu-22:~/sandbox/dnp3-agent-sandbox$ python -m vdnp3_outstation.run_volttron_dnp3_outstation_cli --agent-identity dnp3_outstation
    2023-03-23 11:51:25,975 root DEBUG: Creating ZMQ Core None
    2023-03-23 11:51:25,975 volttron.client.vip.agent.core DEBUG: address: ipc://@/home/kefei/.volttron/run/vip.socket
    2023-03-23 11:51:25,975 volttron.client.vip.agent.core DEBUG: identity: 08953498-18e6-4070-9576-521bad3e82be
@@ -250,7 +252,7 @@ implementation details of the RPC examples.
      <summary>Example of interaction with the `vdnp3_outstation` module </summary>
 
      ```shell
-     (env) kefei@ubuntu-22:~/sandbox/dnp3-agent-sandbox$ python -m vdnp3_outstation --agent-identity dnp3_outstation
+     (env) kefei@ubuntu-22:~/sandbox/dnp3-agent-sandbox$ python -m vdnp3_outstation.run_volttron_dnp3_outstation_cli --agent-identity dnp3_outstation
      dnp3demo.run_outstation {'command': 'outstation', 'outstation_ip=': '0.0.0.0', 'port=': 20000, 'master_id=': 2, 'outstation_id=': 1}
      ms(1678770551216) INFO    manager - Starting thread (0)
      2023-03-14 00:09:11,216	control_workflow_demo	INFO	Connection Config

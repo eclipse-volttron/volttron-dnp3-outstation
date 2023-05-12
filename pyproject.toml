@@ -43,12 +43,13 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
 volttron = ">=10.0.2rc0"
-dnp3-python = ">=0.2.3b3"
+dnp3-python = ">=0.2.3b3, <0.3.0"
 
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=6.2.4"
 pytest-cov = ">=3.0.0"
+pytest-env = ">0.0.0"
 black = ">=21.5b2"
 pre-commit = ">=2.13.0"
 volttron-testing = ">=0.3.1a7"
@@ -58,8 +59,9 @@ mypy = ">=0.982"
 Sphinx = ">=4.5.0"
 sphinx-rtd-theme = ">=1.0.0"
 
-[tool.poetry.scripts]  # entry point
-vdnp3_outstation = "vdnp3_outstation.run_volttron_dnp3_outstation_cli:main"
+[tool.poetry.scripts]  # entry point (note: vctl start will attempt to run this)
+volttron-dnp3-outstation = "dnp3_outstation.agent:main"
+#vdnp3_outstation = "vdnp3_outstation.run_volttron_dnp3_outstation_cli:main"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/eclipse-volttron/volttron-dnp3-outstation/issues"
