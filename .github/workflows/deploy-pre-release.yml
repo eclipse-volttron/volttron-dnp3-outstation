@@ -19,6 +19,7 @@ env:
 jobs:
 
   deploy-pre-release:
+    if: github.ref_name != 'main'
     runs-on: ubuntu-22.04
     steps:
     - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
