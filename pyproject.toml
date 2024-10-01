@@ -17,9 +17,9 @@ ignore_missing_imports = true
 
 [tool.poetry]
 name = "volttron-dnp3-outstation"
-version = "0.0.1-rc"
+version = "0.2.0"
 description = "A Volttron agent that acts as a dnp3 outstation."
-authors = ["Kefei Mo <kefei.mo@pnnl.gov>"]
+authors = ["Kefei Mo <kefei.mo@pnnl.gov>", "C. Allwardt <3979063+craig8@users.noreply.github.com>"]
 license = "Apache-2.0"
 maintainers = ["Volttron Team <volttron@pnnl.gov>"]
 readme = "README.md"
@@ -36,13 +36,13 @@ classifiers = [
     "Topic :: Home Automation",
     "Topic :: Software Development :: Embedded Systems",
     "License :: OSI Approved :: Apache Software License",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9"
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11"
 ]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
-volttron = ">=10.0.2rc0"
+volttron-core = {path="../volttron-core", develop=true}
 dnp3-python = ">=0.2.3b3, <0.3.0"
 
 
@@ -52,7 +52,7 @@ pytest-cov = ">=3.0.0"
 pytest-env = ">0.0.0"
 black = ">=21.5b2"
 pre-commit = ">=2.13.0"
-volttron-testing = ">=0.3.1a7"
+#volttron-testing = ">=0.3.1a7"
 mypy = ">=0.982"
 
 [tool.poetry.group.docs.dependencies]

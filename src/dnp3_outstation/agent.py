@@ -24,10 +24,11 @@
 from pathlib import Path
 from pprint import pformat
 from typing import Callable, Dict
+from volttron.client.logs import setup_logging
 
 from volttron.client.messaging import (headers)
 from volttron.utils import (format_timestamp, get_aware_utc_now, load_config,
-                            setup_logging, vip_main)
+                            vip_main)
 
 import logging
 import sys
