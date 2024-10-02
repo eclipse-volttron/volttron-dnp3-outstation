@@ -17,7 +17,7 @@ ignore_missing_imports = true
 
 [tool.poetry]
 name = "volttron-dnp3-outstation"
-version = "0.2.0"
+version = "2.0.0rc0"
 description = "A Volttron agent that acts as a dnp3 outstation."
 authors = ["Kefei Mo <kefei.mo@pnnl.gov>", "C. Allwardt <3979063+craig8@users.noreply.github.com>"]
 license = "Apache-2.0"
@@ -42,7 +42,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
-volttron-core = {path="../volttron-core", develop=true}
+volttron-core = ">=2.0.0rc0"
 dnp3-python = ">=0.2.3b3, <0.3.0"
 
 
