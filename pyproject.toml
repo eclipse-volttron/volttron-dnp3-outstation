@@ -41,7 +41,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4.0"
+python = ">=3.10,<4.0"
 volttron-core = ">=2.0.0rc0"
 dnp3-python = ">=0.2.3b3, <0.3.0"
 
