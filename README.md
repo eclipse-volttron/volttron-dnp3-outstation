@@ -27,13 +27,17 @@ part of the volttron-dnp3-outstation dependency, it is immediately available aft
 installed.
 
 # Prerequisites
-
-* Python 3 (tested with Python3.8, Python3.9, Python3.10)
+- Python = 3.10
+- pip >= 24.0
+- git >= 2.25
+- poetry >= 1.2.2
+- python >= 3.10
+- volttron >= 11.0.0rc0
 
 ## Python
 
 <details>
-<summary>To install specific Python version (e.g., Python 3.8), we recommend using <a href="https://github.com/pyenv/pyenv"><code>pyenv</code></a>.</summary>
+<summary>To install specific Python version (e.g., Python 3.10), we recommend using <a href="https://github.com/pyenv/pyenv"><code>pyenv</code></a>.</summary>
 
 ```shell
 # install pyenv
