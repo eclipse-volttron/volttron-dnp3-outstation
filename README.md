@@ -30,7 +30,6 @@ installed.
 
 - Python = 3.10
 - pip >= 24.0
-- git >= 2.25
 - poetry >= 1.8.2
 - python >= 3.10
 - volttron >= 11.0.0rc0
