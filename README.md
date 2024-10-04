@@ -62,34 +62,6 @@ pyenv global system 3.10
 The following recipe walks through the steps to install and configure a DNP3 agent. Note that it uses default setup to
 work out-of-the-box. Please feel free to refer to related documentations for details.
 
-1. Create and activate a virtual environment.
-
-   It is recommended to use a virtual environment for installing volttron.
-
-    ```shell
-    python -m venv env
-    source env/bin/activate
-    
-    pip install volttron
-    ```
-
-1. Install volttron and start the platform.
-
-   > **Note**:
-   > According to the [volttron-core#README](https://github.com/eclipse-volttron/volttron-core#readme), setup VOLTTRON_HOME
-   > environment variable is mandatory:
-   > ... if you have/had in the past, a monolithic VOLTTRON version that used the default VOLTTRON_HOME
-   > $HOME/.volttron. This modular version of VOLTTRON cannot work with volttron_home used by monolithic version of
-   > VOLTTRON(version 8.3 or earlier)
-
-    ```shell
-    # Setup environment variable `VOLTTRON_HOME`
-    export VOLTTRON_HOME=<path-to-volttron_home-dir>
-    
-    # Start platform with output going to volttron.log
-    volttron -vv -l volttron.log &
-    ```
-
 1. Install the "volttron-dnp3-outstation" dependency.
 
    There are two options to install the DNP3 Driver. You can install this library using the version on PyPi or install
